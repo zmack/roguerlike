@@ -3,29 +3,30 @@
 
 -include("creatures.hrl").
 
--export([resolve/2, getMobDamage/1]).
+-export([resolve/2, get_mob_damage/1]).
 
 
 resolve(Player, Tile) when is_record(Tile, tile) ->
   #tile{ creatures = Creatures } = Tile,
-  { NewPlayer, NewCreatures } = resolveCreatures(Player, Creatures),
+  { NewPlayer, NewCreatures } = resolve_creatures(Player, Creatures),
   { NewPlayer, #tile{ creatures = NewCreatures }}.
 
-resolveCreatures(_Player, []) ->
+resolve_creatures(_Player, []) ->
   [];
 
-resolveCreatures(Player, [Creature|Tail]) when is_record(Creature, creature) ->
-  { ResolvedPlayer, ResolvedCreature } = resolveCreature(Player, Creature),
-  resolveCreatures(ResolvedPlayer, Tail, [ResolvedCreature]).
+resolve_creatures(Player, [Creature|Tail]) when is_record(Creature, creature) ->
+  { ResolvedPlayer, ResolvedCreature } = resolve_creature(Player, Creature),
+  resolve_creatures(ResolvedPlayer, Tail, [ResolvedCreature]).
 
-resolveCreatures(Player, [Creature|Tail], ResolvedCreatures) ->
-  { ResolvedPlayer, ResolvedCreature } = resolveCreature(Player, Creature),
-  resolveCreatures(ResolvedPlayer, Tail, [ResolvedCreature | ResolvedCreatures]);
+resolve_creatures(Player, [Creature|Tail], ResolvedCreatures) ->
+  { ResolvedPlayer, ResolvedCreature } = resolve_creature(Player, Creature),
+  resolve_creatures(ResolvedPlayer, Tail, [ResolvedCreature | ResolvedCreatures]);
 
-resolveCreatures(Player, [], ResolvedCreatures) ->
+resolve_creatures(Player, [], ResolvedCreatures) ->
   { Player, ResolvedCreatures }.
 
-resolveCreature(Player, Creature) ->
+
+resolve_creature(Player, Creature) ->
   #creature{ health = CreatureHealth, damage = CreatureDamage } = Creature,
   #creature{ health = PlayerHealth, damage = PlayerDamage } = Player,
   ResolvedCreature = Creature#creature{ health = CreatureHealth - PlayerDamage },
@@ -38,7 +39,7 @@ resolveCreature(Player, Creature) ->
   end.
 
     
-getMobDamage(#creature{ health = Health }) ->
+get_mob_damage(#creature{ health = Health }) ->
   io:format("This mob has ~p life~n", [Health]).
 
 
