@@ -4,7 +4,7 @@
 -include("creatures.hrl").
 -import(lists).
 
--export([resolve/2, get_mob_damage/1]).
+-export([resolve/2]).
 
 is_tile_resolved(#tile{ creatures = [] }) ->
   true;
@@ -46,11 +46,6 @@ resolve_creature(Player, Creature) ->
     _ ->
       { Player#creature{ health = PlayerHealth - CreatureDamage }, ResolvedCreature }
   end.
-
-    
-get_mob_damage(#creature{ health = Health }) ->
-  io:format("This mob has ~p life~n", [Health]).
-
 
 %% Tests
 resolve_player_winning_test() ->
