@@ -1,13 +1,18 @@
+BIN=ebin
+SRC=src
+ERL=erlc
+FLAGS=-W -I include -o $(BIN)
+
 all: cleancompile
 
 clean:
-	rm -rf ebin
+	rm -rf $(BIN)
 
 compile: folders
-	erlc -W -I include -o ebin src/*.erl
+	$(ERL) $(FLAGS) $(SRC)/*.erl
 
 folders:
-	mkdir -p ebin
+	mkdir -p $(BIN)
 
 cleancompile: clean compile
 
