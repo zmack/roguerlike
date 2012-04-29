@@ -14,6 +14,8 @@ is_tile_resolved(#tile{ creatures = Creatures }) ->
 is_creature_dead(#creature{ health = Health }) ->
   Health == 0.
 
+resolve_dungeon(Player, []) ->
+  { Player, [] };
 resolve_dungeon(#player{ x = X, y = Y } = Player, Dungeon) ->
   Tile = get_tile_at(Dungeon, { X, Y }),
   { ResolvedPlayer, ResolvedTile } = resolve_tile(Player, Tile),
