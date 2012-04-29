@@ -14,8 +14,12 @@ is_tile_resolved(#tile{ creatures = Creatures }) ->
 is_creature_dead(#creature{ health = Health }) ->
   Health == 0.
 
-resolve_dungeon(Player, Dungeon) ->
-  { Player, Dungeon }.
+resolve_dungeon(#player{ x = X, y = Y } = Player, Dungeon) ->
+  Tile = get_tile_at(Dungeon, { X, Y }),
+  { ResolvedPlayer, ResolvedTile } = resolve_tile(Player, Tile),
+  ResolvedDungeon = replace_tile_at(Dungeon, { X, Y }, ResolvedTile),
+
+  { ResolvedPlayer, ResolvedDungeon }.
 
 get_tile_at([{ TileX, TileY, Tile }|_Tail], { X, Y }) when (TileX == X) and (TileY == Y) ->
   Tile;
@@ -55,14 +59,14 @@ resolve_creatures(Player, [], ResolvedCreatures) ->
 
 resolve_creature(Player, Creature) ->
   #creature{ health = CreatureHealth, damage = CreatureDamage } = Creature,
-  #creature{ health = PlayerHealth, damage = PlayerDamage } = Player,
+  #player{ health = PlayerHealth, damage = PlayerDamage } = Player,
   ResolvedCreature = Creature#creature{ health = CreatureHealth - PlayerDamage },
 
   case ResolvedCreature#creature.health of
     Health when Health =< 0 ->
       { Player, ResolvedCreature#creature{ health = 0 } };
     _ ->
-      { Player#creature{ health = PlayerHealth - CreatureDamage }, ResolvedCreature }
+      { Player#player{ health = PlayerHealth - CreatureDamage }, ResolvedCreature }
   end.
 
 %% Tests
@@ -77,22 +81,22 @@ create_creature_list([], Creatures) ->
   Creatures.
 
 resolve_player_winning_test() ->
-  Player = #creature { health = 20, damage = 5 },
+  Player = #player { health = 20, damage = 5 },
   FirstCreature = #creature { health = 5, damage = 1 },
   SecondCreature = #creature { health = 5, damage = 1 },
   Tile = #tile { creatures = [ FirstCreature, SecondCreature ] },
   { NewPlayer, _NewTile } = resolve_tile(Player, Tile),
 
-  ?assertEqual(20, NewPlayer#creature.health).
+  ?assertEqual(20, NewPlayer#player.health).
 
 resolve_player_doesnt_die_test() ->
-  Player = #creature { health = 20, damage = 1 },
+  Player = #player { health = 20, damage = 1 },
   FirstCreature = #creature { health = 5, damage = 1 },
   SecondCreature = #creature { health = 5, damage = 1 },
   Tile = #tile { creatures = [ FirstCreature, SecondCreature ] },
   { NewPlayer, _NewTile } = resolve_tile(Player, Tile),
 
-  ?assertEqual(18, NewPlayer#creature.health).
+  ?assertEqual(18, NewPlayer#player.health).
 
 is_tile_resolved_works_for_empty_lists_test() ->
   Tile = #tile { creatures = [ ] },
@@ -127,8 +131,9 @@ resolve_dungeon_resolves_a_dungeon_using_a_player_test() ->
   Dungeon = [ { 1, 1, Tile } ],
   Player = #player{ x = 1, y = 1, health = 10, damage = 5 },
   { NewPlayer, _NewDungeon } = resolve_dungeon(Player, Dungeon),
-  ?assertEqual(10, NewPlayer#player.health),
+  ?assertEqual(7, NewPlayer#player.health),
   ?assertEqual(5, NewPlayer#player.damage).
+
 
 get_tile_at_gets_a_tile_at_that_position_test() ->
   Creatures = create_creature_list([{ 10, 1 }, { 10, 2 }]),
@@ -149,4 +154,13 @@ replace_tile_at_replaces_a_tile_at_that_position_test() ->
   NewDungeon = replace_tile_at(Dungeon, { 0, 0 }, ReplacementTile),
   ?assertEqual([{ 0, 0, ReplacementTile }, { 1, 1, Tile }], NewDungeon).
 
-%% resolve_dungeon_resolves_dungeon_test() ->
+resolve_dungeon_resolves_dungeon_test() ->
+  Creatures = create_creature_list([{ 10, 1 }, { 10, 2 }]),
+  Tile = #tile{ creatures = Creatures },
+  Dungeon = [ { 1, 1, Tile } ],
+  Player = #player{ x = 1, y = 1, health = 10, damage = 5 },
+  { ResolvedPlayer, ResolvedDungeon } = resolve_dungeon(Player, Dungeon),
+  ?assertEqual(Player#player{ health = 7 }, ResolvedPlayer),
+  [{ 1, 1, #tile{ creatures = ResolvedCreatures } }] = ResolvedDungeon,
+  ?assert(lists:all(fun(Creature) -> Creature#creature.health == 5 end, ResolvedCreatures)).
+
