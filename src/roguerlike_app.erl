@@ -10,6 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+  session_store:init(),
   case roguerlike_sup:start_link() of
     {ok, Pid} ->
       {ok, Pid};
