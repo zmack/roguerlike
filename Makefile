@@ -16,3 +16,6 @@ folders:
 
 cleancompile: clean compile
 
+test: compile
+	rebar eunit
+
