@@ -1,34 +1,44 @@
--module(dungeoner).
+-module(instance).
 -include("creatures.hrl").
 
 -behaviour(gen_server).
 
 -export([init/0, init/1, handle_call/3, handle_cast/2, handle_info/2]).
 -export([terminate/2, code_change/3]).
--export([start_link/2, create/2 ]).
+-export([start_link/3, create/2]).
+
+%% Game API
+-export([move/2]).
 
 -define(SERVER, ?MODULE).
 -define(DEFAULT_LEASE_TIME, 60 * 60 * 24).
 
--record(state, { dungeon, player, start_time }).
+-record(state, { key, dungeon, player, start_time }).
 
-start_link(Player, Dungeon) ->
-  gen_server:start_link(?MODULE, [Player, Dungeon], []).
+start_link(Player, Dungeon, Key) ->
+  gen_server:start_link(?MODULE, [Player, Dungeon, Key], []).
 
 create(Player, Dungeon) ->
   roguerlike_sup:start_child(Player, Dungeon).
 
+move(Key, Position) ->
+  { ok, Pid } = session_store:lookup(Key),
+  gen_server:call(Pid, { move, Position}).
+
+
 init() ->
   ok.
 
-init([Player, Dungeon]) ->
+init([Player, Dungeon, Key]) ->
   Now = calendar:local_time(),
   StartTime = calendar:datetime_to_gregorian_seconds(Now),
+  session_store:insert(Key, self()),
   { ok,
     #state{
       player = Player,
       dungeon = Dungeon,
-      start_time = StartTime
+      start_time = StartTime,
+      key = Key
     }
   }.
 

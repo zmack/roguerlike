@@ -22,14 +22,20 @@ start_link() ->
   supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 start_child(Player, Dungeon) ->
-  supervisor:start_child(?SERVER, [Player, Dungeon]).
+  Key = session_store:generate_key(),
+
+  case supervisor:start_child(?SERVER, [Player, Dungeon, Key]) of
+    { ok, _Pid } -> {ok, Key};
+    Response -> Response
+  end.
+
 
 %% ===================================================================
 %% Supervisor callbacks
 %% ===================================================================
 
 init([]) ->
-  Element = ?CHILD(dungeoner, worker),
+  Element = ?CHILD(instance, worker),
   Children = [Element],
   RestartStrategy = {simple_one_for_one, 0, 1},
   {ok, { RestartStrategy, Children} }.

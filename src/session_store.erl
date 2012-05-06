@@ -2,10 +2,12 @@
 
 -export([
          init/0,
-         insert/1,
+         insert/2,
          delete/1,
          lookup/1
         ]).
+
+-export([generate_key/0]).
 
 -define(TABLE_ID, ?MODULE).
 
@@ -17,8 +19,7 @@ init() ->
   ets:new(?TABLE_ID, [public, named_table]),
   ok.
 
-insert(Pid) ->
-  Key = generate_key(),
+insert(Key, Pid) ->
   ets:insert(?TABLE_ID, {Key, Pid}).
 
 lookup(Key) ->
@@ -27,12 +28,10 @@ lookup(Key) ->
     []           -> {error, not_found}
   end.
 
-delete({pid, Pid}) ->
-  ets:match_delete(?TABLE_ID, {'_', Pid});
-delete({key, Key}) ->
-  ets:match_delete(?TABLE_ID, {Key, '_'});
-delete(_Any) -> true.
+delete(Key) ->
+  ets:delete(?TABLE_ID, Key).
 
+% Maybe this shouldn't really be here?
 generate_key() ->
   { MegaSeconds, Seconds, Microseconds } = now(),
   base64:encode(<<MegaSeconds:32,Seconds:32, Microseconds:32>>).
@@ -48,7 +47,7 @@ init_should_not_fail_test() ->
   ?assertEqual(ok, InitResponse).
 
 insert_should_be_successfully_performed_test() ->
-  InsertResponse = insert(test_pid),
+  InsertResponse = insert(key, test_pid),
 
   ?assertEqual(true, InsertResponse).
 
@@ -82,21 +81,14 @@ delete_nonexisting_pid_should_return_true_test() ->
 delete_existing_key_should_return_true_test() ->
   ets:insert(?TABLE_ID, {some_key, some_pid}),
 
-  DeleteResponse = delete({key, some_key}),
-
-  ?assertEqual(true, DeleteResponse).
-
-delete_existing_pid_should_return_true_test() ->
-  ets:insert(?TABLE_ID, {some_key, some_pid}),
-
-  DeleteResponse = delete({pid, some_pid}),
+  DeleteResponse = delete(key),
 
   ?assertEqual(true, DeleteResponse).
 
 delete_nonexisting_key_should_not_affect_existing_entries_test() ->
   ets:insert(?TABLE_ID, {some_key, some_pid}),
 
-  delete({key, some_wrong_key}),
+  delete(key),
 
   ?assertEqual([{some_key, some_pid}], ets:lookup(?TABLE_ID, some_key)).
 
