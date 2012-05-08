@@ -1,4 +1,4 @@
--module(session_store).
+-module(instance_store).
 
 -export([
          init/0,

@@ -22,7 +22,7 @@ create(Player, Dungeon) ->
   roguerlike_sup:start_child(Player, Dungeon).
 
 move(Key, Position) ->
-  { ok, Pid } = session_store:lookup(Key),
+  { ok, Pid } = instance_store:lookup(Key),
   gen_server:call(Pid, { move, Position}).
 
 
@@ -32,7 +32,7 @@ init() ->
 init([Player, Dungeon, Key]) ->
   Now = calendar:local_time(),
   StartTime = calendar:datetime_to_gregorian_seconds(Now),
-  session_store:insert(Key, self()),
+  instance_store:insert(Key, self()),
   { ok,
     #state{
       player = Player,

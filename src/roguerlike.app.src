@@ -1,15 +1,17 @@
-{application, roguerlike,
- [
-  {description, ""},
-  {vsn, "1"},
-  {modules, [
-    roguerlike_app,
-    roguerlike_sup]},
-  {registered, [roguerlike_app, roguerlike_sup]},
-  {applications, [
-                  kernel,
-                  stdlib
-                 ]},
-  {mod, { roguerlike_app, []}},
-  {env, []}
- ]}.
+{application,roguerlike,
+  [
+    {description,""},
+    {vsn, "1"},
+    {modules,[
+      roguerlike_app,
+      roguerlike_sup
+    ]},
+    {registered, [roguerlike_app, roguerlike_sup]},
+    {applications, [
+      kernel,
+      stdlib
+    ]},
+    {mod, { roguerlike_app, []}},
+    {env, []}
+  ]
+}.
