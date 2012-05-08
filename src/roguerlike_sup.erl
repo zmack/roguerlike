@@ -23,7 +23,6 @@ start_link() ->
 
 start_child(Player, Dungeon) ->
   Key = session_store:generate_key(),
-
   case supervisor:start_child(?SERVER, [Player, Dungeon, Key]) of
     { ok, _Pid } -> {ok, Key};
     Response -> Response

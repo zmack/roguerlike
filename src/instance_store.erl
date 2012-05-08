@@ -1,12 +1,6 @@
 -module(instance_store).
 
--export([
-         init/0,
-         insert/2,
-         delete/1,
-         lookup/1
-        ]).
-
+-export([init/0,insert/2,delete/1,lookup/1]).
 -export([generate_key/0]).
 
 -define(TABLE_ID, ?MODULE).
