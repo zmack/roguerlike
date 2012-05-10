@@ -4,9 +4,10 @@
     {vsn, "1"},
     {modules,[
       roguerlike_app,
-      roguerlike_sup
+      roguerlike_sup,
+      roguerlike_web_sup
     ]},
-    {registered, [roguerlike_app, roguerlike_sup]},
+    {registered, [roguerlike_app, roguerlike_sup, roguerlike_web_sup]},
     {applications, [
       kernel,
       stdlib

@@ -1,4 +1,4 @@
--module(roguerlike_sup).
+-module(roguerlike_web_sup).
 
 -behaviour(supervisor).
 
@@ -33,8 +33,16 @@ start_child(Player, Dungeon) ->
 %% ===================================================================
 
 init([]) ->
-  Element = ?CHILD(instance, worker),
-  Children = [Element],
-  RestartStrategy = {simple_one_for_one, 0, 1},
-  {ok, { RestartStrategy, Children} }.
+    Web = web_specs(roguerlike_web, 8080),
+    Processes = [Web],
+    Strategy = {one_for_one, 10, 10},
+    {ok,
+     {Strategy, lists:flatten(Processes)}}.
 
+web_specs(Mod, Port) ->
+    WebConfig = [{ip, {0,0,0,0}},
+                 {port, Port},
+                 {docroot, roguerlike_deps:local_path(["priv", "www"])}],
+    {Mod,
+     {Mod, start, [WebConfig]},
+     permanent, 5000, worker, dynamic}.
