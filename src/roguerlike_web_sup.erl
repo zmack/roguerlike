@@ -33,7 +33,7 @@ start_child(Player, Dungeon) ->
 %% ===================================================================
 
 init([]) ->
-    Web = web_specs(roguerlike_web, 8080),
+    Web = web_specs(roguerlike_web, 8000),
     Processes = [Web],
     Strategy = {one_for_one, 10, 10},
     {ok,

@@ -15,20 +15,10 @@ start(_StartType, _StartArgs) ->
   init_sup().
 
 init_web_sup() ->
-  case roguerlike_web_sup:start_link() of
-    {ok, Pid} ->
-      {ok, Pid};
-    Other ->
-      {error, Other}
-  end.
+  {ok, _} = roguerlike_web_sup:start_link().
 
 init_sup() ->
-  case roguerlike_sup:start_link() of
-    {ok, Pid} ->
-      {ok, Pid};
-    Other ->
-      {error, Other}
-  end.
+  {ok, _} = roguerlike_sup:start_link().
 
 stop(_State) ->
     ok.
