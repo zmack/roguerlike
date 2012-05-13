@@ -15,40 +15,41 @@
 
 -include("creatures.hrl").
 -include_lib("webmachine/include/webmachine.hrl").
+-record(context, { pid }).
 
 init([]) -> {ok, undefined}.
 
-allowed_methods(ReqData, State) ->
-  {['HEAD', 'GET', 'PUT', 'DELETE', 'POST'], ReqData, State}.
+allowed_methods(ReqData, Context) ->
+  {['HEAD', 'GET', 'PUT', 'DELETE', 'POST'], ReqData, Context}.
 
-allow_missing_post(ReqData, State) ->
+allow_missing_post(ReqData, Context) ->
   case wrq:disp_path(ReqData) of
-    "" -> { true, ReqData, State };
-    _ -> { false, ReqData, State }
+    [] -> { true, ReqData, Context };
+    _ -> { false, ReqData, Context }
   end.
 
-resource_exists(ReqData, State) ->
+resource_exists(ReqData, Context) ->
   Key = list_to_binary(wrq:disp_path(ReqData)),
   case instance_store:lookup(Key) of
-    { ok, _Pid } -> { true, ReqData, State };
-    _ -> { false, ReqData, State }
+    { ok, Pid } -> { true, ReqData, #context{ pid = Pid } };
+    _ -> { false, ReqData, Context }
   end.
 
-content_types_accepted(ReqData, State) ->
+content_types_accepted(ReqData, Context) ->
   Types = [{"application/json", from_json}],
-  {Types, ReqData, State}.
+  {Types, ReqData, Context}.
 
-content_types_provided(ReqData, State) ->
+content_types_provided(ReqData, Context) ->
   Types = [{"application/json", to_json}],
-  {Types, ReqData, State}.
+  {Types, ReqData, Context}.
 
-from_json(ReqData, State) ->
-  { ok, ReqData, State }.
+from_json(ReqData, Context) ->
+  { ok, ReqData, Context }.
 
-post_is_create(ReqData, State) ->
+post_is_create(ReqData, Context) ->
   case wrq:disp_path(ReqData) of
-    "" -> { true, ReqData, State };
-    _ -> { false, ReqData, State }
+    [] -> { true, ReqData, Context };
+    _ -> { false, ReqData, Context }
   end.
 
 create_path(ReqData, Context) ->
@@ -59,8 +60,21 @@ create_path(ReqData, Context) ->
     _ -> {undefined, ReqData, Context}
   end.
 
-to_html(ReqData, State) ->
-  {"<html><body>Hello, new world</body></html>", ReqData, State}.
+to_html(ReqData, Context) ->
+  {"<html><body>Hello, new world</body></html>", ReqData, Context}.
 
-to_json(ReqData, State) ->
-  {"{foo: bar }", ReqData, State}.
+to_json(ReqData, #context{ pid = Pid } = Context) ->
+  InstanceInfo = instance:get_state(Pid),
+  {instance_info_to_json(InstanceInfo), ReqData, Context}.
+
+instance_info_to_json(InstanceInfo) ->
+  {Player, _StartTime} = InstanceInfo,
+  Struct = {struct,
+    [{ player,
+        {struct, [
+            {health, Player#player.health},
+            {damage, Player#player.damage}
+            ]}
+        }]
+  },
+  mochijson2:encode(Struct).

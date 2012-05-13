@@ -8,7 +8,7 @@
 -export([start_link/3, create/2]).
 
 %% Game API
--export([move/2]).
+-export([move/2, get_state/1]).
 
 -define(SERVER, ?MODULE).
 -define(DEFAULT_LEASE_TIME, 60 * 60 * 24).
@@ -24,6 +24,9 @@ create(Player, Dungeon) ->
 move(Key, Position) ->
   { ok, Pid } = instance_store:lookup(Key),
   gen_server:call(Pid, { move, Position}).
+
+get_state(Pid) ->
+  gen_server:call(Pid, { get_state }).
 
 init([Player, Dungeon, Key]) ->
   Now = calendar:local_time(),
@@ -58,5 +61,8 @@ handle_call({ move, { PlayerX, PlayerY }}, _From, State) ->
   { NewPlayer, NewDungeon } = resolve:resolve_dungeon(Player#player{ x = PlayerX, y = PlayerY }, Dungeon),
   NewState = State#state{ player = NewPlayer, dungeon = NewDungeon }, 
   { reply, NewState, NewState };
+handle_call({ get_state }, _From, #state{ player = Player, start_time = StartTime } = State) ->
+  Res = { Player, StartTime },
+  { reply, Res, State };
 handle_call(_Message, _From, State) ->
   { ok, State }.
