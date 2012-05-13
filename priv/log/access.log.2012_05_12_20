@@ -1,4 +1,0 @@
-127.0.0.1 - - [12/May/2012:22:05:08 +0200] "GET /fs HTTP/1.1" 404 193 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0"
-127.0.0.1 - - [12/May/2012:22:05:11 +0200] "GET /instance HTTP/1.1" 200 42 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0"
-127.0.0.1 - - [12/May/2012:22:05:13 +0200] "GET /instance/1 HTTP/1.1" 200 42 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0"
-127.0.0.1 - - [12/May/2012:22:05:14 +0200] "GET /instance/2 HTTP/1.1" 200 42 "" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:12.0) Gecko/20100101 Firefox/12.0"
