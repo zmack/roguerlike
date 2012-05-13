@@ -10,9 +10,6 @@
 
 -define(SERVER, ?MODULE).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
-
 %% ===================================================================
 %% API functions
 %% ===================================================================
@@ -33,8 +30,15 @@ start_child(Player, Dungeon) ->
 %% ===================================================================
 
 init([]) ->
-  Element = ?CHILD(instance, worker),
-  Children = [Element],
-  RestartStrategy = {simple_one_for_one, 0, 1},
-  {ok, { RestartStrategy, Children} }.
+  SupervisorFlags = {simple_one_for_one, 0, 1},
+  ChildSpecs = [
+      {instance,
+       {instance, start_link, []},
+       permanent,
+       5000,
+       worker,
+       [instance]
+      }
+  ],
+  {ok, {SupervisorFlags, ChildSpecs}}.
 
