@@ -19,7 +19,7 @@ start_link(Player, Dungeon, Key) ->
   gen_server:start_link(?MODULE, [Player, Dungeon, Key], []).
 
 create(Player, Dungeon) ->
-  roguerlike_sup:start_child(Player, Dungeon).
+  instance_sup:start_child(Player, Dungeon).
 
 move(Key, Position) ->
   { ok, Pid } = instance_store:lookup(Key),

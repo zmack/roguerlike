@@ -18,7 +18,7 @@ init_web_sup() ->
   {ok, _} = roguerlike_web_sup:start_link().
 
 init_sup() ->
-  {ok, _} = roguerlike_sup:start_link().
+  {ok, _} = instance_sup:start_link().
 
 stop(_State) ->
     ok.

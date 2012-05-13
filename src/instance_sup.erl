@@ -1,4 +1,4 @@
--module(roguerlike_sup).
+-module(instance_sup).
 
 -behaviour(supervisor).
 
